@@ -20,7 +20,7 @@ pub type ApplicationResult<T> = Result<T, ApplicationError>;
 /// It will handle events, subscriptions and the view too.
 /// It provides functions to interact with the view (mount, umount, query, etc), but also
 /// the main function: `tick()`. See [tick](#tick)
-pub struct Application<ComponentId, Msg, UserEvent>
+pub struct Application<'a, ComponentId, Msg, UserEvent>
 where
     ComponentId: Eq + PartialEq + Clone + Hash,
     Msg: PartialEq,
@@ -30,10 +30,10 @@ where
     subs: Vec<Subscription<ComponentId, UserEvent>>,
     /// If true, subs won't be processed. (Default: False)
     sub_lock: bool,
-    view: View<ComponentId, Msg, UserEvent>,
+    view: View<'a, ComponentId, Msg, UserEvent>,
 }
 
-impl<K, Msg, UserEvent> Application<K, Msg, UserEvent>
+impl<'a, K, Msg, UserEvent> Application<'a, K, Msg, UserEvent>
 where
     K: Eq + PartialEq + Clone + Hash,
     Msg: PartialEq,
@@ -112,7 +112,7 @@ where
     pub fn mount(
         &mut self,
         id: K,
-        component: WrappedComponent<Msg, UserEvent>,
+        component: WrappedComponent<'a, Msg, UserEvent>,
         subs: Vec<Sub<K, UserEvent>>,
     ) -> ApplicationResult<()> {
         // Mount
@@ -136,7 +136,7 @@ where
     pub fn remount(
         &mut self,
         id: K,
-        component: WrappedComponent<Msg, UserEvent>,
+        component: WrappedComponent<'a, Msg, UserEvent>,
         subs: Vec<Sub<K, UserEvent>>,
     ) -> ApplicationResult<()> {
         // remove subs

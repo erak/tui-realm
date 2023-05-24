@@ -14,9 +14,9 @@ use tuirealm::{
     SubEventClause, Update,
 };
 
-pub struct Model {
+pub struct Model<'a> {
     /// Application
-    pub app: Application<Id, Msg, NoUserEvent>,
+    pub app: Application<'a, Id, Msg, NoUserEvent>,
     /// Indicates that the application must quit
     pub quit: bool,
     /// Tells whether to redraw interface
@@ -25,7 +25,7 @@ pub struct Model {
     pub terminal: TerminalBridge,
 }
 
-impl Default for Model {
+impl<'a> Default for Model<'a> {
     fn default() -> Self {
         Self {
             app: Self::init_app(),
@@ -36,7 +36,7 @@ impl Default for Model {
     }
 }
 
-impl Model {
+impl<'a> Model<'a> {
     pub fn view(&mut self) {
         assert!(self
             .terminal
@@ -63,7 +63,7 @@ impl Model {
             .is_ok());
     }
 
-    fn init_app() -> Application<Id, Msg, NoUserEvent> {
+    fn init_app() -> Application<'a, Id, Msg, NoUserEvent> {
         // Setup application
         // NOTE: NoUserEvent is a shorthand to tell tui-realm we're not going to use any custom user event
         // NOTE: the event listener is configured to use the default crossterm input listener and to raise a Tick event each second
@@ -127,7 +127,7 @@ impl Model {
 
 // Let's implement Update for model
 
-impl Update<Msg> for Model {
+impl<'a> Update<Msg> for Model<'a> {
     fn update(&mut self, msg: Option<Msg>) -> Option<Msg> {
         if let Some(msg) = msg {
             // Set redraw

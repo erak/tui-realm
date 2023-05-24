@@ -10,7 +10,7 @@ use std::hash::Hash;
 use thiserror::Error;
 
 /// A boxed component. Shorthand for View components map
-pub(crate) type WrappedComponent<Msg, UserEvent> = Box<dyn Component<Msg, UserEvent>>;
+pub(crate) type WrappedComponent<'a, Msg, UserEvent> = Box<dyn Component<Msg, UserEvent> + 'a>;
 
 /// Result for view methods.
 /// Returns a variable Ok and a ViewError in case of error.
@@ -30,14 +30,14 @@ pub enum ViewError {
 /// View is the wrapper and manager for all the components.
 /// A View is a container for all the components in a certain layout.
 /// Each View can have only one focused component at the time. At least one component must be always focused
-pub struct View<ComponentId, Msg, UserEvent>
+pub struct View<'a, ComponentId, Msg, UserEvent>
 where
     ComponentId: Eq + PartialEq + Clone + Hash,
     Msg: PartialEq,
     UserEvent: Eq + PartialEq + Clone + PartialOrd,
 {
     /// Components Mounted onto View
-    components: HashMap<ComponentId, WrappedComponent<Msg, UserEvent>>,
+    components: HashMap<ComponentId, WrappedComponent<'a, Msg, UserEvent>>,
     /// Current active component
     focus: Option<ComponentId>,
     /// Focus stack; used to determine which component should hold focus in case the current element is blurred
@@ -46,7 +46,7 @@ where
     injectors: Vec<Box<dyn Injector<ComponentId>>>,
 }
 
-impl<K, Msg, UserEvent> Default for View<K, Msg, UserEvent>
+impl<'a, K, Msg, UserEvent> Default for View<'a, K, Msg, UserEvent>
 where
     K: Eq + PartialEq + Clone + Hash,
     Msg: PartialEq,
@@ -62,7 +62,7 @@ where
     }
 }
 
-impl<K, Msg, UserEvent> View<K, Msg, UserEvent>
+impl<'a, K, Msg, UserEvent> View<'a, K, Msg, UserEvent>
 where
     K: Eq + PartialEq + Clone + Hash,
     Msg: PartialEq,
@@ -70,7 +70,7 @@ where
 {
     /// Mount component on View.
     /// Returns error if the component is already mounted
-    pub fn mount(&mut self, id: K, component: WrappedComponent<Msg, UserEvent>) -> ViewResult<()> {
+    pub fn mount(&mut self, id: K, component: WrappedComponent<'a, Msg, UserEvent>) -> ViewResult<()> {
         if self.mounted(&id) {
             Err(ViewError::ComponentAlreadyMounted)
         } else {
@@ -100,7 +100,7 @@ where
     pub fn remount(
         &mut self,
         id: K,
-        component: WrappedComponent<Msg, UserEvent>,
+        component: WrappedComponent<'a, Msg, UserEvent>,
     ) -> ViewResult<()> {
         // Umount, but keep focus
         let had_focus = self.has_focus(&id);
