@@ -32,7 +32,7 @@ impl Default for Model {
             app: Self::init_app(),
             quit: false,
             redraw: true,
-            terminal: TerminalBridge::new().expect("Cannot initialize terminal"),
+            terminal: TerminalBridge::default().expect("Cannot initialize terminal"),
         }
     }
 }

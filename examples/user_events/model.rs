@@ -25,7 +25,7 @@ impl Model {
             app,
             quit: false,
             redraw: true,
-            terminal: TerminalBridge::new().expect("Cannot initialize terminal"),
+            terminal: TerminalBridge::default().expect("Cannot initialize terminal"),
         }
     }
 

@@ -2,6 +2,9 @@
 //!
 //! Cross platform Terminal helper
 
+use std::fmt::Arguments;
+use std::io::{Error, Write};
+
 use thiserror::Error;
 
 use crate::Terminal;
@@ -11,8 +14,8 @@ pub type TerminalResult<T> = Result<T, TerminalError>;
 
 #[derive(Debug, Error)]
 pub enum TerminalError {
-    #[error("cannot connect to stdout")]
-    CannotConnectStdout,
+    #[error("cannot connect to output")]
+    CannotConnect(Error),
     #[error("cannot enter alternate mode")]
     CannotEnterAlternateMode,
     #[error("cannot leave alternate mode")]
@@ -35,9 +38,16 @@ pub struct TerminalBridge {
 
 impl TerminalBridge {
     /// Instantiates a new Terminal bridge
-    pub fn new() -> TerminalResult<Self> {
+    pub fn new(writer: Writer) -> TerminalResult<Self> {
         Ok(Self {
-            terminal: Self::adapt_new_terminal()?,
+            terminal: Self::adapt_new_terminal(writer)?,
+        })
+    }
+
+    /// Instantiates a default Terminal bridge
+    pub fn default() -> TerminalResult<Self> {
+        Ok(Self {
+            terminal: Self::adapt_default_terminal()?,
         })
     }
 
@@ -74,5 +84,40 @@ impl TerminalBridge {
     /// Return a mutable reference to the raw `Terminal` structure
     pub fn raw_mut(&mut self) -> &mut Terminal {
         &mut self.terminal
+    }
+}
+
+pub struct Writer {
+    target: Box<dyn Write>,
+}
+
+impl Writer {
+    pub fn new(target: Box<dyn Write>) -> Self {
+        Self { target }
+    }
+}
+
+impl Write for Writer {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        self.target.write(buf)
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        self.target.flush()
+    }
+
+    fn write_all(&mut self, buf: &[u8]) -> std::io::Result<()> {
+        self.target.write_all(buf)
+    }
+
+    fn write_fmt(&mut self, fmt: Arguments<'_>) -> std::io::Result<()> {
+        self.target.write_fmt(fmt)
+    }
+
+    fn by_ref(&mut self) -> &mut Self
+    where
+        Self: Sized,
+    {
+        self
     }
 }

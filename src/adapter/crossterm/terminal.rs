@@ -1,7 +1,6 @@
 //! ## Terminal
 //!
 //! terminal bridge adapter for crossterm
-
 use std::io::stdout;
 
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
@@ -10,14 +9,20 @@ use crossterm::terminal::{
     disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
 };
 
-use crate::terminal::{TerminalBridge, TerminalError, TerminalResult};
+use crate::terminal::{TerminalBridge, TerminalError, TerminalResult, Writer};
 use crate::tui::backend::CrosstermBackend;
 use crate::Terminal;
 
 impl TerminalBridge {
-    pub(crate) fn adapt_new_terminal() -> TerminalResult<Terminal> {
-        Terminal::new(CrosstermBackend::new(stdout()))
-            .map_err(|_| TerminalError::CannotConnectStdout)
+    pub(crate) fn adapt_default_terminal() -> TerminalResult<Terminal> {
+        let writer = Writer::new(Box::new(stdout()));
+        Terminal::new(CrosstermBackend::new(writer))
+            .map_err(|err| TerminalError::CannotConnect(err))
+    }
+
+    pub(crate) fn adapt_new_terminal(writer: Writer) -> TerminalResult<Terminal> {
+        Terminal::new(CrosstermBackend::new(writer))
+            .map_err(|err| TerminalError::CannotConnect(err))
     }
 
     pub(crate) fn adapt_enter_alternate_screen(&mut self) -> TerminalResult<()> {
