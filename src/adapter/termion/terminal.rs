@@ -3,7 +3,7 @@
 //! terminal bridge adapter for termion
 
 use crate::terminal::Writer;
-use std::io::stdout;
+use std::io::{stdout, stderr};
 
 use termion::input::MouseTerminal;
 use termion::raw::IntoRawMode;
@@ -15,11 +15,11 @@ use crate::Terminal;
 
 impl TerminalBridge {
     pub(crate) fn adapt_default_terminal() -> TerminalResult<Terminal> {
-        let stream = stdout()
+        let stream = stderr()
             .into_raw_mode()
-            .map_err(|err| TerminalError::CannotConnect(err))?
+            .map_err(|err| TerminalError::Termion(err))?
             .into_alternate_screen()
-            .map_err(|err| TerminalError::CannotConnect(err))?;
+            .map_err(|err| TerminalError::Termion(err))?;
         let stream = MouseTerminal::from(stream);
         let writer = Writer::new(Box::new(stream));
 

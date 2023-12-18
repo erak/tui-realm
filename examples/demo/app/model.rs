@@ -2,11 +2,12 @@
 //!
 //! app model
 
+use std::io::stderr;
 use std::time::{Duration, SystemTime};
 
 use tuirealm::event::NoUserEvent;
 use tuirealm::props::{Alignment, Color, TextModifiers};
-use tuirealm::terminal::TerminalBridge;
+use tuirealm::terminal::{TerminalBridge, Writer};
 use tuirealm::tui::layout::{Constraint, Direction, Layout};
 use tuirealm::{
     Application, AttrValue, Attribute, EventListenerCfg, Sub, SubClause, SubEventClause, Update,
@@ -28,6 +29,7 @@ pub struct Model {
 
 impl Default for Model {
     fn default() -> Self {
+        // let writer = Writer::new(Box::new(stderr()));
         Self {
             app: Self::init_app(),
             quit: false,

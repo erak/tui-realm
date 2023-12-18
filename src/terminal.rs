@@ -16,6 +16,8 @@ pub type TerminalResult<T> = Result<T, TerminalError>;
 pub enum TerminalError {
     #[error("cannot connect to output")]
     CannotConnect(Error),
+    #[error("cannot initialize termion")]
+    Termion(Error),
     #[error("cannot enter alternate mode")]
     CannotEnterAlternateMode,
     #[error("cannot leave alternate mode")]
