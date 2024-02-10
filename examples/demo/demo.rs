@@ -35,6 +35,7 @@ fn main() {
     // Setup model
     let mut model = Model::default();
     // Enter alternate screen
+    // let _ = model.terminal.clear_screen();
     let _ = model.terminal.enter_alternate_screen();
     let _ = model.terminal.enable_raw_mode();
     // Main loop
@@ -73,5 +74,5 @@ fn main() {
     // Terminate terminal
     let _ = model.terminal.leave_alternate_screen();
     let _ = model.terminal.disable_raw_mode();
-    let _ = model.terminal.clear_screen();
+    // let _ = model.terminal.clear_screen();
 }

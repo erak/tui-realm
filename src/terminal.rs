@@ -12,7 +12,7 @@ pub type TerminalResult<T> = Result<T, TerminalError>;
 #[derive(Debug, Error)]
 pub enum TerminalError {
     #[error("cannot connect to stdout")]
-    CannotConnectStdout,
+    CannotConnectStdout(String),
     #[error("cannot enter alternate mode")]
     CannotEnterAlternateMode,
     #[error("cannot leave alternate mode")]
